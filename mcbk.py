@@ -6,6 +6,7 @@ import requests
 import json
 from anonfile import AnonFile
 anon = AnonFile()
+desktop_dir = Path.home().joinpath('Desktop')
 username = getuser()
 if sys.platform == "linux":
     HOME = f"/home/{username}/.config/mcbk"
@@ -44,10 +45,12 @@ if sys.platform == "linux":
                 pass
         except IndexError:
             pass
-        desktop_dir = Path.home().joinpath('Desktop')
         os.system(f"cp -r '{filename}' {desktop_dir}")
         print("World Backup located at Desktop")
     else:
         pass
 elif sys.platform == "windows":
-    HOME = ""
+    HOME = Path.home()
+    os.chdir(HOME)
+    os.mkdir("mcbk")
+    
