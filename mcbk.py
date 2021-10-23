@@ -1,56 +1,92 @@
 import sys , os
-from shutil import make_archive
+from shutil import make_archive , copyfile
 from getpass import getuser
 from pathlib import Path
 import requests
 import json
-from anonfile import AnonFile
-anon = AnonFile()
 desktop_dir = Path.home().joinpath('Desktop')
 username = getuser()
+def anon_upload(filename):
+    print("[UPLOADING]", filename)
+    # https://github.com/awersli99/anonfile-upload
+    url = 'https://api.anonfiles.com/upload'
+    files = {'file': (open(filename, 'rb'))}
+    r = requests.post(url, files=files)
+    resp = json.loads(r.text)
+    if resp['status']:
+        urlshort = resp['data']['file']['url']['short']
+        urllong = resp['data']['file']['url']['full']
+        print(f'[SUCCESS] Your file has been succesfully uploaded:\nFull URL: {urllong}\nShort URL: {urlshort}')
+    else:
+        message = resp['error']['message']
+        errtype = resp['error']['type']
+        print(f'[ERROR] {message}\n{errtype}')
 if sys.platform == "linux":
-    HOME = f"/home/{username}/.config/mcbk"
-    MC_HOME = f"/home/{username}/.minecraft/"
-    try:
-        os.mkdir(HOME)
-    except FileExistsError:
-        pass
-    if sys.argv[1] == "world" and sys.argv[2] == "backup":
-        world_name = input("Enter World Name: ")
-        if os.path.isdir(f"{HOME}/{world_name}"):
+    MC_HOME = f"/home/{username}/.minecraft/saves"
+    if sys.argv[1] == "backup":
+        if sys.argv[2] == "world":
+            world_name = input("Enter World Name: ")
+            os.chdir(MC_HOME)
+            make_archive(world_name , "zip" , f"{MC_HOME}/{world_name}")
+            filename = f"{MC_HOME}/{world_name}.zip"
+            try:
+                if sys.argv[3] == "upload":
+                    anon_upload(filename)
+                else:
+                    pass
+            except IndexError:
+                pass
+            os.system(f"cp -r '{filename}' {desktop_dir}")
+            print("World Backup located at Desktop")
+        elif sys.argv[2] == "mods":
+            pass
+        elif sys.argv[2] == "shaders":
+            pass
+        elif sys.argv[2] == "all":
             pass
         else:
-            os.system(f"cp -r '{MC_HOME}saves/{world_name}' {HOME}")
-        os.chdir(f"{HOME}/")
-        make_archive(world_name , "zip" , f"{HOME}/{world_name}")
-        filename = f"{HOME}/{world_name}.zip"
-        try:
-            if sys.argv[3] == "upload":
-                print("Uploading Files..")
-                # https://github.com/awersli99/anonfile-upload
-                url = 'https://api.anonfiles.com/upload'
-                files = {'file': (open(filename, 'rb'))}
-                r = requests.post(url, files=files)
-                print("[UPLOADING]", filename)
-                resp = json.loads(r.text)
-                if resp['status']:
-                    urlshort = resp['data']['file']['url']['short']
-                    urllong = resp['data']['file']['url']['full']
-                    print(f'[SUCCESS] Your file has been succesfully uploaded:\nFull URL: {urllong}\nShort URL: {urlshort}')
-                else:
-                    message = resp['error']['message']
-                    errtype = resp['error']['type']
-                    print(f'[ERROR] {message}\n{errtype}')
-            else:
-                pass
-        except IndexError:
-            pass
-        os.system(f"cp -r '{filename}' {desktop_dir}")
-        print("World Backup located at Desktop")
+            print("")
+            print("Error Invalid Argument")
+            print("Possible Options are:")
+            print(" mcbk backup world")
+            print(" mcbk backup mods")
+            print(" mcbk backup shaders")
+            print(" mcbk backup all")
+            print("If You want the backed up file to be uploaded  , use 'upload' as the final argument.")
     else:
         pass
-elif sys.platform == "windows":
+elif sys.platform == "win32":
     HOME = Path.home()
+    MC_HOME = Path.home().joinpath('AppData').joinpath('Roaming').joinpath('.minecraft').joinpath('saves')
     os.chdir(HOME)
-    os.mkdir("mcbk")
-    
+    if sys.argv[1] == "backup":
+        if sys.argv[2] == "world":
+            world_name = input("Enter World Name: ")
+            os.chdir(MC_HOME)
+            make_archive(world_name , 'zip' , f"{MC_HOME}/{world_name}")
+            try:
+                if sys.argv[3] == "upload":
+                    anon_upload(f"{world_name}.zip")
+                else:
+                    pass
+            except IndexError:
+                pass
+            os.system("start explorer .")
+            
+        elif sys.argv[2] == "mods":
+            pass
+        elif sys.argv[2] == "shaders":
+            pass
+        elif sys.argv[2] == "all":
+            pass
+        else:
+            print("")
+            print("Error Invalid Argument")
+            print("Possible Options are:")
+            print(" mcbk backup world")
+            print(" mcbk backup mods")
+            print(" mcbk backup shaders")
+            print(" mcbk backup all")
+            print("If You want the backed up file to be uploaded  , use 'upload' as the final argument.")
+    else:
+        pass
