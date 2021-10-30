@@ -18,7 +18,8 @@ def main():
         backup(mc_path)
     try:
         if sys.argv[3] == "upload":
-            anon_upload(zipped_file)
+            os.chdir(mc_path)
+            anon_upload(f"{backup.world_name}.zip")
     except IndexError:
         pass
 
@@ -62,7 +63,8 @@ def backup(mc_path):
     target = None
 
     if arg == "world":
-        world_name = input("Enter World Name: ")
+        backup.world_name = input("Enter World Name: ")
+        world_name = backup.world_name
         target = world_name
     elif arg == "mods":
         pass
