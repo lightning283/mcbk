@@ -16,13 +16,11 @@ def main():
 
     if sys.argv[1] == "backup":
         backup(mc_path)
-
-    if sys.argv[3] == "upload":
-        try:
+    try:
+        if sys.argv[3] == "upload":
             anon_upload(zipped_file)
-        except IndexError:
-            pass
-
+    except IndexError:
+        pass
 
 # returns minecraft path ( differs between operating system )
 def get_path():
