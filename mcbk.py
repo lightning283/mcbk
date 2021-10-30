@@ -12,13 +12,13 @@ def main():
     zipped_file = None
     mc_path = get_path()
 
-    os.chdir(mc_path)
+    os.chdir(f"{mc_path}/saves")
 
-    if sys.argv[1] == "backup":
-        backup(mc_path)
+    if "backup" in sys.argv:
+        backup(f"{mc_path}/saves")
     try:
-        if sys.argv[3] == "upload":
-            os.chdir(mc_path)
+        if "upload" in sys.argv:
+            os.chdir(f"{mc_path}/saves")
             anon_upload(f"{backup.world_name}.zip")
     except IndexError:
         pass
@@ -28,9 +28,9 @@ def get_path():
     mc_home = None
 
     if sys.platform == "linux":
-        mc_home = f"/home/{getuser()}/.minecraft/saves"
+        mc_home = f"/home/{getuser()}/.minecraft"
     elif sys.platform == "win32":
-        mc_home = Path.home().joinpath('AppData').joinpath('Roaming').joinpath('.minecraft').joinpath('saves')
+        mc_home = Path.home().joinpath('AppData').joinpath('Roaming').joinpath('.minecraft')
 
     return mc_home
 
@@ -56,19 +56,20 @@ def anon_upload(filename):
 
 # makes backup zip of  : world , mods , shaders , etc
 def backup(mc_path):
+    mc_path = f"{mc_path}/saves"
     desktop_dir = Path.home().joinpath('Desktop')
 
-    arg = sys.argv[2]
+    arg = sys.argv
 
     target = None
 
-    if arg == "world":
+    if "world" in sys.argv:
         backup.world_name = input("Enter World Name: ")
         world_name = backup.world_name
         target = world_name
-    elif arg == "mods":
-        pass
-    elif arg == "shaders":
+    elif "mods" in arg:
+        os.chdir(mc_path)
+    elif "shaders" in arg:
         pass
 
     make_archive(world_name, "zip", f"{mc_path}/{target}")
