@@ -16,13 +16,6 @@ def main():
 
     if sys.argv[1] == "backup":
         backup(mc_path)
-    try:
-        if "upload" in sys.argv:
-            os.chdir(f"{mc_path}/saves")
-            anon_upload(f"{backup.world_name}.zip")
-    except IndexError:
-        pass
-
 
 # returns minecraft path ( differs between operating system )
 def get_path():
@@ -64,27 +57,31 @@ def open_location():
 
 # makes backup zip of  : world , mods , shaders , etc
 def backup(mc_path):
-    desktop_dir = Path.home().joinpath('Desktop')
     arg = sys.argv[2]                  
     if arg == "world":
         if sys.platform == "linux":
             mc_path = mc_path + '/saves'
         else:
             mc_path = mc_path + '\saves'
-        backup.world_name = input("Enter World Name: ")
-        world_name = backup.world_name
-        target = world_name
+        target = input("Enter World Name: ")
     elif arg == "mods":
-        pass
+        target = "mods"
     elif arg == "shaderpacks":
-        pass
-    make_archive(target, "zip", f"{mc_path}/{target}")
-    zipped_file = f"{mc_path}/{target}.zip"
-    os.system(f"cp -r '{zipped_file}' {desktop_dir}")
-    os.remove(zipped_file)
+        target = "shaderpacks"
+    desktop_dir = Path.home().joinpath('Desktop')
+    os.chdir(mc_path)
+    make_archive(target, "zip", target)
+    os.system(f"cp -r '{target}.zip' {desktop_dir}")
+    os.remove(f"{target}.zip")
     print("Backup located at Desktop : " + target)
     os.chdir(desktop_dir)
     open_location()
+    try:
+        if "upload" in sys.argv:
+            anon_upload(f"{target}.zip")
+    except IndexError:
+        pass
+
 
 if __name__ == "__main__":
     main()
