@@ -1,6 +1,4 @@
-import json
-import os
-import sys
+import sys,os,json,shutil
 from getpass import getuser
 from pathlib import Path
 from shutil import make_archive
@@ -62,17 +60,25 @@ def backup(mc_path):
         if sys.platform == "linux":
             mc_path = mc_path + '/saves'
         else:
-            mc_path = mc_path + '\saves'
+            mc_path = Path.home().joinpath('AppData').joinpath('Roaming').joinpath('.minecraft').joinpath('saves')
         target = input("Enter World Name: ")
     elif arg == "mods":
         target = "mods"
     elif arg == "shaderpacks":
         target = "shaderpacks"
+    elif arg == "all":
+        target = ".minecraft"
+        mc_path = Path().home()
     desktop_dir = Path.home().joinpath('Desktop')
     os.chdir(mc_path)
-    make_archive(target, "zip", target)
-    os.system(f"cp -r '{target}.zip' {desktop_dir}")
+    print("Compressing please wait..")
+    make_archive(target , 'zip' , f"{mc_path}/{target}")
+    # os.system(f"cp -r '{target}.zip' {desktop_dir}")
+    shutil.copy(f'{target}.zip', desktop_dir)
     os.remove(f"{target}.zip")
+    if os.path.isfile(f"{desktop_dir}/.minecraft.zip"):
+        os.rename(f"{desktop_dir}/.minecraft.zip", f"{desktop_dir}/minecraft.zip")
+        target = "minecra"
     print("Backup located at Desktop : " + target)
     os.chdir(desktop_dir)
     open_location()
