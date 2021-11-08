@@ -6,11 +6,10 @@ from shutil import make_archive
 import requests
 
 
-def main():
+def main(arg,upload):
     zipped_file = None
     mc_path = get_path()
-    if sys.argv[1] == "backup":
-        backup(mc_path)
+    backup(mc_path,arg,upload)
 
 # returns minecraft path ( differs between operating system )
 def get_path():
@@ -51,8 +50,7 @@ def open_location():
 
 
 # makes backup zip of  : world , mods , shaders , etc
-def backup(mc_path):
-    arg = sys.argv[2]                  
+def backup(mc_path,arg,upload):          
     if arg == "world":
         if sys.platform == "linux":
             mc_path = mc_path + '/saves'
@@ -80,7 +78,7 @@ def backup(mc_path):
     os.chdir(desktop_dir)
     open_location()
     try:
-        if "upload" in sys.argv:
+        if upload == True:
             anon_upload(f"{target}.zip")
     except IndexError:
         pass
