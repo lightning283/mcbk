@@ -9,9 +9,6 @@ import requests
 def main():
     zipped_file = None
     mc_path = get_path()
-
-    os.chdir(f"{mc_path}/saves")
-
     if sys.argv[1] == "backup":
         backup(mc_path)
 
@@ -78,7 +75,7 @@ def backup(mc_path):
     os.remove(f"{target}.zip")
     if os.path.isfile(f"{desktop_dir}/.minecraft.zip"):
         os.rename(f"{desktop_dir}/.minecraft.zip", f"{desktop_dir}/minecraft.zip")
-        target = "minecra"
+        target = "minecraft"
     print("Backup located at Desktop : " + target)
     os.chdir(desktop_dir)
     open_location()
